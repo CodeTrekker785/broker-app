@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Secure Terminal</title>
+    <style>
+        :root {
+            --bg: #0b0e14;
+            --card: #161a1e;
+            --accent: #00ff88; /* Trading green */
+            --text: #eaecef;
+            --input-bg: #1e2329;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Subtle background glow */
+        body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--accent);
+            filter: blur(150px);
+            opacity: 0.05;
+            z-index: -1;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 360px;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid transparent;
+            padding: 14px;
+            border-radius: 8px;
+            color: white;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #2b3139;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Login</h2>
+    <div class="input-group">
+        <input id="u" placeholder="Username" spellcheck="false">
+    </div>
+    <div class="input-group">
+        <input id="p" type="password" placeholder="Password">
+    </div>
+    <button id="loginBtn" onclick="login()">Sign In</button>
+    
+    <div class="footer">
+        New here? <a href="register.html">Create an account</a>
+    </div>
+</div>
+
+<script>
+function login() {
+    const btn = document.getElementById("loginBtn");
+    const u = document.getElementById("u").value;
+    const p = document.getElementById("p").value;
+
+    if (!u || !p) return alert("Please enter credentials");
+
+    // UI feedback
+    btn.innerHTML = "Processing...";
+    btn.disabled = true;
+
+    fetch("/api/login", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            localStorage.user = JSON.stringify(d.user);
+            location.href = 'dashboard.html';
+        } else {
+            alert("Invalid username or password");
+            btn.innerHTML = "Sign In";
+            btn.disabled = false;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        btn.innerHTML = "Sign In";
+        btn.disabled = false;
+        alert("Server connection error");
+    });
+}
+</script>
+
+</body>
+</html>
